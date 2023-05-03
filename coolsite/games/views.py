@@ -12,10 +12,10 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
 
 def index(request):
     games = Games.objects.all()
-    cats = Category.objects.all()
+
     context = {
         'games': games,
-        'cats': cats,
+
         'menu': menu,
         'title': 'Главная страница',
         'cat_selected': 0,
@@ -50,14 +50,13 @@ def show_games(request, games_id):
 
 def show_category(request, cat_id):
     games = Games.objects.filter(cat_id=cat_id)
-    cats = Category.objects.all()
+
 
     if len(games) == 0:
         raise Http404()
 
     context = {
         'games': games,
-        'cats': cats,
         'menu': menu,
         'title': 'Отображение по рубрикам',
         'cat_selected': cat_id,
