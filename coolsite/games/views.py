@@ -202,8 +202,8 @@ def logout_user(request):
 
 class GamesAPIView(APIView):
     def get(self, request):
-        lst = Games.objects.all().values()
-        return Response({'posts': list(lst)})
+        w = Games.objects.all()
+        return Response({'posts': GameSerializer(w, many=True).data})
 
     def post(self, request):
         games_new = Games.objects.create(
@@ -212,7 +212,7 @@ class GamesAPIView(APIView):
             cat_id=request.data['cat_id']
         )
 
-        return Response({'games': model_to_dict(games_new)})
+        return Response({'games': GameSerializer(games_new).data})
 
 # class GamesAPIView(generics.ListAPIView):
 #     queryset = Games.objects.all()
