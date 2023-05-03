@@ -5,14 +5,18 @@ from django.urls import path
 
 from games.views import *
 from django.urls import path, include
+from rest_framework import routers
+
+router = routers.SimpleRouter()
+router.register(r'games', GamesViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('captcha', include('captcha.urls')),
     path('', include('games.urls')),
-    path('api/v1/gameslist', GamesAPIList.as_view()),
-    path('api/v1/gameslist/<int:pk>/', GamesAPIUpdate.as_view()),
-    path('api/v1/gamesdetails/<int:pk>/', GamesAPIDetailsView.as_view())
+    path('api/v1/', include(router.urls)),
+    # path('api/v1/gameslist', GamesViewSet.as_view({'get': 'list'})),
+    # path('api/v1/gameslist/<int:pk>/', GamesViewSet.as_view({'put': 'update'})),
 ]
 if settings.DEBUG:
 

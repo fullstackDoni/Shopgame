@@ -11,12 +11,13 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, FormView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
 from .forms import *
 from .models import *
 from .serializers import GameSerializer
 from .utils import *
-from rest_framework import generics
+from rest_framework import generics, viewsets, mixins
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить игру", 'url_name': 'add_page'},
@@ -200,54 +201,61 @@ def logout_user(request):
     return redirect('login')
 
 
-class GamesAPIList(generics.ListCreateAPIView):
+class GamesViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.ListModelMixin,
+                   GenericViewSet):
     queryset = Games.objects.all()
     serializer_class = GameSerializer
 
-
-class GamesAPIUpdate(generics.UpdateAPIView):
-    queryset = Games.objects.all()
-    serializer_class = GameSerializer
-
-
-class GamesAPIDetailsView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Games.objects.all()
-    serializer_class = GameSerializer
-
-
-
-class GamesAPIView(APIView):
-    def get(self, request):
-        w = Games.objects.all()
-        return Response({'posts': GameSerializer(w, many=True).data})
-
-    def post(self, request):
-        serializer = GameSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response({'post': serializer.data})
-
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get("pk", None)
-        if not pk:
-            return Response({"error": "Method PUT not allowed"})
-
-        try:
-            instance = Games.objects.get(pk=pk)
-        except:
-            return Response({"error": "Object does not exists"})
-
-        serializer = GameSerializer(data=request.data, instance=instance)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"post": serializer.data})
-
-    def delete(self, request, *args, **kwargs):
-        pk = kwargs.get("pk", None)
-        if not pk:
-            return Response({"error": "Method DELETE not allowed"})
-
-        # здесь код для удаления записи с переданным pk
-
-        return Response({"post": "delete post " + str(pk)})
+# class GamesAPIList(generics.ListCreateAPIView):
+#     queryset = Games.objects.all()
+#     serializer_class = GameSerializer
+#
+#
+# class GamesAPIUpdate(generics.UpdateAPIView):
+#     queryset = Games.objects.all()
+#     serializer_class = GameSerializer
+#
+#
+# class GamesAPIDetailsView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Games.objects.all()
+#     serializer_class = GameSerializer
+#
+#
+# class GamesAPIView(APIView):
+#     def get(self, request):
+#         w = Games.objects.all()
+#         return Response({'posts': GameSerializer(w, many=True).data})
+#
+#     def post(self, request):
+#         serializer = GameSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#
+#         return Response({'post': serializer.data})
+#
+#     def put(self, request, *args, **kwargs):
+#         pk = kwargs.get("pk", None)
+#         if not pk:
+#             return Response({"error": "Method PUT not allowed"})
+#
+#         try:
+#             instance = Games.objects.get(pk=pk)
+#         except:
+#             return Response({"error": "Object does not exists"})
+#
+#         serializer = GameSerializer(data=request.data, instance=instance)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response({"post": serializer.data})
+#
+#     def delete(self, request, *args, **kwargs):
+#         pk = kwargs.get("pk", None)
+#         if not pk:
+#             return Response({"error": "Method DELETE not allowed"})
+#
+#         # здесь код для удаления записи с переданным pk
+#
+#         return Response({"post": "delete post " + str(pk)})
