@@ -15,8 +15,7 @@ from .utils import *
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить игру", 'url_name': 'add_page'},
         {'title': "Обратная связь", 'url_name': 'contact'},
-        {'title': "Войти", 'url_name': 'login'}
-        ]
+        {'title': "Войти", 'url_name': 'login'}]
 
 
 class GamesHome(DataMixin, ListView):
@@ -122,12 +121,12 @@ class ShowGames(DataMixin, DetailView):
     model = Games
     template_name = 'games/games.html'
     slug_url_kwarg = 'games_slug'
-    context_object_name = 'post'
+    context_object_name = 'games'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title=context['games'])
-        return context
+        return dict(list(context.items()) + list(c_def.items()))
 
 
 # def show_category(request, cat_id):
