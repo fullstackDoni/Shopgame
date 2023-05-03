@@ -1,5 +1,9 @@
+from django.contrib.auth import logout, login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
@@ -16,6 +20,7 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
 
 
 class GamesHome(DataMixin, ListView):
+
     model = Games
     template_name = 'games/index.html'
     context_object_name = 'games'
@@ -42,9 +47,14 @@ class GamesHome(DataMixin, ListView):
 #
 #     return render(request, 'games/index.html', context=context)
 
-@login_required
+
 def about(request):
-    return render(request, 'games/about.html', {'menu': menu, 'title': 'О сайте'})
+    contact_list = Games.objects.all()
+    paginator = Paginator(contact_list, 3)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'games/about.html', {'page_obj': page_obj, 'menu': menu, 'title': 'О сайте'})
 
 
 def addpage(request):
@@ -67,8 +77,8 @@ def contact(request):
     return HttpResponse("Обратная связь")
 
 
-def login(request):
-    return HttpResponse("Авторизация")
+# def login(request):
+#     return HttpResponse("Авторизация")
 
 
 def pageNotFound(request, exception):
@@ -129,6 +139,7 @@ class ShowGames(DataMixin, DetailView):
 #     return render(request, 'games/index.html', context=context)
 
 class GamesCategory(DataMixin, ListView):
+
     model = Games
     template_name = 'games/index.html'
     context_object_name = 'posts'
@@ -142,3 +153,37 @@ class GamesCategory(DataMixin, ListView):
         c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat),
                                       cat_selected=context['posts'][0].cat_id)
         return dict(list(context.items()) + list(c_def.items()))
+
+
+class RegisterUser(DataMixin, CreateView):
+    form_class = UserCreationForm
+    template_name = 'games/register.html'
+    success_url = reverse_lazy('login')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title="Регистрация")
+        return dict(list(context.items()) + list(c_def.items()))
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect('home')
+
+
+class LoginUser(DataMixin, LoginView):
+    form_class = LoginUserForm
+    template_name = 'games/login.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title="Авторизация")
+        return dict(list(context.items()) + list(c_def.items()))
+
+    def get_success_url(self):
+        return reverse_lazy('home')
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('login')
