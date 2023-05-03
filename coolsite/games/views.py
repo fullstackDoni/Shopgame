@@ -10,7 +10,9 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, FormView
 from .forms import *
 from .models import *
+from .serializers import GameSerializer
 from .utils import *
+from rest_framework import generics
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить игру", 'url_name': 'add_page'},
@@ -19,7 +21,6 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
 
 
 class GamesHome(DataMixin, ListView):
-
     model = Games
     template_name = 'games/index.html'
     context_object_name = 'games'
@@ -145,7 +146,6 @@ class ShowGames(DataMixin, DetailView):
 #     return render(request, 'games/index.html', context=context)
 
 class GamesCategory(DataMixin, ListView):
-
     model = Games
     template_name = 'games/index.html'
     context_object_name = 'posts'
@@ -194,3 +194,8 @@ class LoginUser(DataMixin, LoginView):
 def logout_user(request):
     logout(request)
     return redirect('login')
+
+
+class GamesAPIView(generics.ListAPIView):
+    queryset = Games.objects.all()
+    serializer_class = GameSerializer
