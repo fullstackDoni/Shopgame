@@ -1,3 +1,5 @@
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+
 from coolsite import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -17,6 +19,9 @@ urlpatterns = [
     path('api/v1/gamesdelete/<int:pk>/', GamesAPIDestroy.as_view()),
     path('api/v1/auth/', include('djoser.urls')),  # new
     re_path(r'^auth/', include('djoser.urls.authtoken')),  # new
+    path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]
 if settings.DEBUG:
     import debug_toolbar
