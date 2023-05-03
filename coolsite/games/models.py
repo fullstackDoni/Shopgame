@@ -16,7 +16,7 @@ class Games(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('post', kwargs={'post_slug': self.slug})
+        return reverse('games', kwargs={'games_slug': self.slug})
 
     class Meta:
         verbose_name = 'Известные Игры'
