@@ -206,14 +206,32 @@ class GamesAPIView(APIView):
         return Response({'posts': GameSerializer(w, many=True).data})
 
     def post(self, request):
-        games_new = Games.objects.create(
-            title=request.data['title'],
-            content=request.data['content'],
-            cat_id=request.data['cat_id']
-        )
+        serializer = GameSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
-        return Response({'games': GameSerializer(games_new).data})
+        return Response({'post': serializer.data})
 
-# class GamesAPIView(generics.ListAPIView):
-#     queryset = Games.objects.all()
-#     serializer_class = GameSerializer
+    def put(self, request, *args, **kwargs):
+        pk = kwargs.get("pk", None)
+        if not pk:
+            return Response({"error": "Method PUT not allowed"})
+
+        try:
+            instance = Games.objects.get(pk=pk)
+        except:
+            return Response({"error": "Object does not exists"})
+
+        serializer = GameSerializer(data=request.data, instance=instance)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({"post": serializer.data})
+
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs.get("pk", None)
+        if not pk:
+            return Response({"error": "Method DELETE not allowed"})
+
+        # здесь код для удаления записи с переданным pk
+
+        return Response({"post": "delete post " + str(pk)})
