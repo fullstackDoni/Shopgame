@@ -1,9 +1,12 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView
 from .forms import *
 from .models import *
+from .utils import *
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить игру", 'url_name': 'add_page'},
@@ -12,17 +15,15 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
         ]
 
 
-class GamesHome(ListView):
+class GamesHome(DataMixin, ListView):
     model = Games
     template_name = 'games/index.html'
     context_object_name = 'games'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu
-        context['title'] = 'Главная страница'
-        context['cat_selected'] = 0
-        return context
+        c_def = self.get_user_context(title="Главная страница")
+        return dict(list(context.items()) + list(c_def.items()))
 
     def get_queryset(self):
         return Games.objects.filter(is_published=True)
@@ -41,7 +42,7 @@ class GamesHome(ListView):
 #
 #     return render(request, 'games/index.html', context=context)
 
-
+@login_required
 def about(request):
     return render(request, 'games/about.html', {'menu': menu, 'title': 'О сайте'})
 
@@ -87,19 +88,20 @@ def pageNotFound(request, exception):
 #     return render(request, 'games/games.html', context=context)
 
 
-class AddGames(CreateView):
+class AddGames(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddGameForm
     template_name = 'games/addpage.html'
     success_url = reverse_lazy('home')
+    login_url = reverse_lazy('home')
+    raise_exception = True
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Добавление статьи'
-        context['menu'] = menu
-        return context
+        c_def = self.get_user_context(title="Добавление игры")
+        return dict(list(context.items()) + list(c_def.items()))
 
 
-class ShowGames(DetailView):
+class ShowGames(DataMixin, DetailView):
     model = Games
     template_name = 'games/games.html'
     slug_url_kwarg = 'games_slug'
@@ -107,11 +109,8 @@ class ShowGames(DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = context['post']
-        context['menu'] = menu
+        c_def = self.get_user_context(title=context['games'])
         return context
-
-
 
 
 # def show_category(request, cat_id):
@@ -129,7 +128,7 @@ class ShowGames(DetailView):
 #
 #     return render(request, 'games/index.html', context=context)
 
-class GamesCategory(ListView):
+class GamesCategory(DataMixin, ListView):
     model = Games
     template_name = 'games/index.html'
     context_object_name = 'posts'
@@ -140,7 +139,6 @@ class GamesCategory(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Категория - ' + str(context['posts'][0].cat)
-        context['menu'] = menu
-        context['cat_selected'] = context['posts'][0].cat_id
-        return context
+        c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat),
+                                      cat_selected=context['posts'][0].cat_id)
+        return dict(list(context.items()) + list(c_def.items()))
