@@ -2,7 +2,7 @@
 
 {% block content %}
 <ul class="list-articles">
-    {% for p in games %}
+    {% for p in object_list %}
     {% if p.photo %}
     <p><img class="img-article-left thumb ml-3" src="{{p.photo.url}}"></p>
     {% endif %}

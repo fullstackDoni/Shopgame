@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
-
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView
 from .forms import *
 from .models import *
 
@@ -11,18 +12,34 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
         ]
 
 
-def index(request):
-    games = Games.objects.all()
+class GamesHome(ListView):
+    model = Games
+    template_name = 'games/index.html'
+    context_object_name = 'games'
 
-    context = {
-        'games': games,
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['menu'] = menu
+        context['title'] = 'Главная страница'
+        context['cat_selected'] = 0
+        return context
 
-        'menu': menu,
-        'title': 'Главная страница',
-        'cat_selected': 0,
-    }
+    def get_queryset(self):
+        return Games.objects.filter(is_published=True)
 
-    return render(request, 'games/index.html', context=context)
+
+# def index(request):
+#     games = Games.objects.all()
+#
+#     context = {
+#         'games': games,
+#
+#         'menu': menu,
+#         'title': 'Главная страница',
+#         'cat_selected': 0,
+#     }
+#
+#     return render(request, 'games/index.html', context=context)
 
 
 def about(request):
@@ -57,30 +74,73 @@ def pageNotFound(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
 
-def show_games(request, games_slug):
-    games = get_object_or_404(Games, slug=games_slug)
+# def show_games(request, games_slug):
+#     games = get_object_or_404(Games, slug=games_slug)
+#
+#     context = {
+#         'games': games,
+#         'menu': menu,
+#         'title': games.title,
+#         'cat_selected': games.cat_id,
+#     }
+#
+#     return render(request, 'games/games.html', context=context)
 
-    context = {
-        'games': games,
-        'menu': menu,
-        'title': games.title,
-        'cat_selected': games.cat_id,
-    }
 
-    return render(request, 'games/games.html', context=context)
+class AddGames(CreateView):
+    form_class = AddGameForm
+    template_name = 'games/addpage.html'
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Добавление статьи'
+        context['menu'] = menu
+        return context
 
 
-def show_category(request, cat_id):
-    games = Games.objects.filter(cat_id=cat_id)
+class ShowGames(DetailView):
+    model = Games
+    template_name = 'games/games.html'
+    slug_url_kwarg = 'games_slug'
+    context_object_name = 'post'
 
-    if len(games) == 0:
-        raise Http404()
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = context['post']
+        context['menu'] = menu
+        return context
 
-    context = {
-        'games': games,
-        'menu': menu,
-        'title': 'Отображение по рубрикам',
-        'cat_selected': cat_id,
-    }
 
-    return render(request, 'games/index.html', context=context)
+
+
+# def show_category(request, cat_id):
+#     games = Games.objects.filter(cat_id=cat_id)
+#
+#     if len(games) == 0:
+#         raise Http404()
+#
+#     context = {
+#         'games': games,
+#         'menu': menu,
+#         'title': 'Отображение по рубрикам',
+#         'cat_selected': cat_id,
+#     }
+#
+#     return render(request, 'games/index.html', context=context)
+
+class GamesCategory(ListView):
+    model = Games
+    template_name = 'games/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_queryset(self):
+        return Games.objects.filter(cat__slug=self.kwargs['cat_slug'], is_published=True)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Категория - ' + str(context['posts'][0].cat)
+        context['menu'] = menu
+        context['cat_selected'] = context['posts'][0].cat_id
+        return context
