@@ -24,7 +24,7 @@ class MyCustomRouter(routers.SimpleRouter):
 
 
 router = MyCustomRouter()
-router.register(r'games', GamesViewSet, basename='women')
+router.register(r'games', GamesViewSet, basename='games')
 print(router.urls)
 
 urlpatterns = [
