@@ -11,7 +11,8 @@ urlpatterns = [
     path('captcha', include('captcha.urls')),
     path('', include('games.urls')),
     path('api/v1/gameslist', GamesAPIList.as_view()),
-    path('api/v1/gameslist/<int:pk>/', GamesAPIList.as_view())
+    path('api/v1/gameslist/<int:pk>/', GamesAPIUpdate.as_view()),
+    path('api/v1/gamesdetails/<int:pk>/', GamesAPIDetailsView.as_view())
 ]
 if settings.DEBUG:
 

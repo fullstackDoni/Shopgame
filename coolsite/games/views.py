@@ -205,6 +205,17 @@ class GamesAPIList(generics.ListCreateAPIView):
     serializer_class = GameSerializer
 
 
+class GamesAPIUpdate(generics.UpdateAPIView):
+    queryset = Games.objects.all()
+    serializer_class = GameSerializer
+
+
+class GamesAPIDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Games.objects.all()
+    serializer_class = GameSerializer
+
+
+
 class GamesAPIView(APIView):
     def get(self, request):
         w = Games.objects.all()
