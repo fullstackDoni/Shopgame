@@ -7,8 +7,25 @@ from games.views import *
 from django.urls import path, include
 from rest_framework import routers
 
-router = routers.SimpleRouter()
-router.register(r'games', GamesViewSet)
+
+class MyCustomRouter(routers.SimpleRouter):
+    routes = [
+        routers.Route(url=r'^{prefix}$',
+                      mapping={'get': 'list'},
+                      name='{basename}-list',
+                      detail=False,
+                      initkwargs={'suffix': 'List'}),
+        routers.Route(url=r'^{prefix}/{lookup}$',
+                      mapping={'get': 'retrieve'},
+                      name='{basename}-detail',
+                      detail=True,
+                      initkwargs={'suffix': 'Detail'})
+    ]
+
+
+router = MyCustomRouter()
+router.register(r'games', GamesViewSet, basename='women')
+print(router.urls)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,8 +36,8 @@ urlpatterns = [
     # path('api/v1/gameslist/<int:pk>/', GamesViewSet.as_view({'put': 'update'})),
 ]
 if settings.DEBUG:
-
     import debug_toolbar
+
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
     ]

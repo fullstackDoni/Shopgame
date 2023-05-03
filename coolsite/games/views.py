@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, FormView
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
@@ -208,6 +209,20 @@ class GamesViewSet(mixins.CreateModelMixin,
                    GenericViewSet):
     queryset = Games.objects.all()
     serializer_class = GameSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs.get("pk")
+
+        if not pk:
+            return Games.objects.all()[:3]
+
+        return Games.objects.filter(pk=pk)
+
+    @action(methods=['get'], detail=True)
+    def category(self, request, pk=None):
+        cats = Category.objects.get(pk=pk)
+        return Response({'cats': cats.name})
+
 
 # class GamesAPIList(generics.ListCreateAPIView):
 #     queryset = Games.objects.all()
