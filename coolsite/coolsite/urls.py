@@ -9,6 +9,7 @@ from rest_framework import routers
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/drf-auth/', include('rest_framework.urls')),
     path('captcha', include('captcha.urls')),
     path('', include('games.urls')),
     path('api/v1/games/', GamesAPIList.as_view()),
