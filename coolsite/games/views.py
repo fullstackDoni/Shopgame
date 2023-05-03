@@ -42,7 +42,7 @@ def addpage(request):
 
     else:
         form = AddGameForm()
-    return render(request, 'games/addpage.html', {'form': form, 'menu': menu, 'title': 'Добавление статьи'})
+    return render(request, 'games/addpage.html', {'form': form, 'menu': menu, 'title': ''})
 
 
 def contact(request):
