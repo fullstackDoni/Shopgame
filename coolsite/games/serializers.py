@@ -13,9 +13,10 @@ from games.models import Games
 #
 
 class GameSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Games
         fields = "__all__"
 
-
-#Serializer by DONI
+# Serializer by DONI

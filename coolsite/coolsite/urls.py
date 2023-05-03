@@ -7,31 +7,13 @@ from games.views import *
 from django.urls import path, include
 from rest_framework import routers
 
-
-class MyCustomRouter(routers.SimpleRouter):
-    routes = [
-        routers.Route(url=r'^{prefix}$',
-                      mapping={'get': 'list'},
-                      name='{basename}-list',
-                      detail=False,
-                      initkwargs={'suffix': 'List'}),
-        routers.Route(url=r'^{prefix}/{lookup}$',
-                      mapping={'get': 'retrieve'},
-                      name='{basename}-detail',
-                      detail=True,
-                      initkwargs={'suffix': 'Detail'})
-    ]
-
-
-router = MyCustomRouter()
-router.register(r'games', GamesViewSet, basename='games')
-print(router.urls)
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('captcha', include('captcha.urls')),
     path('', include('games.urls')),
-    path('api/v1/', include(router.urls)),
+    path('api/v1/games/', GamesAPIList.as_view()),
+    path('api/v1/games/<int:pk>/', GamesAPIUpdate.as_view()),
+    path('api/v1/gamesdelete/<int:pk>/', GamesAPIDestroy.as_view()),
     # path('api/v1/gameslist', GamesViewSet.as_view({'get': 'list'})),
     # path('api/v1/gameslist/<int:pk>/', GamesViewSet.as_view({'put': 'update'})),
 ]

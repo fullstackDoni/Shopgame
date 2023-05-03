@@ -13,7 +13,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-
+from .serializers import GameSerializer
+from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .forms import *
 from .models import *
 from .serializers import GameSerializer
@@ -202,75 +203,19 @@ def logout_user(request):
     return redirect('login')
 
 
-class GamesViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.ListModelMixin,
-                   GenericViewSet):
+class GamesAPIList(generics.ListCreateAPIView):
     queryset = Games.objects.all()
     serializer_class = GameSerializer
-
-    def get_queryset(self):
-        pk = self.kwargs.get("pk")
-
-        if not pk:
-            return Games.objects.all()[:3]
-
-        return Games.objects.filter(pk=pk)
-
-    @action(methods=['get'], detail=True)
-    def category(self, request, pk=None):
-        cats = Category.objects.get(pk=pk)
-        return Response({'cats': cats.name})
+    # permission_classes = (IsAuthenticatedOrReadOnly, )
 
 
-# class GamesAPIList(generics.ListCreateAPIView):
-#     queryset = Games.objects.all()
-#     serializer_class = GameSerializer
-#
-#
-# class GamesAPIUpdate(generics.UpdateAPIView):
-#     queryset = Games.objects.all()
-#     serializer_class = GameSerializer
-#
-#
-# class GamesAPIDetailsView(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Games.objects.all()
-#     serializer_class = GameSerializer
-#
-#
-# class GamesAPIView(APIView):
-#     def get(self, request):
-#         w = Games.objects.all()
-#         return Response({'posts': GameSerializer(w, many=True).data})
-#
-#     def post(self, request):
-#         serializer = GameSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#
-#         return Response({'post': serializer.data})
-#
-#     def put(self, request, *args, **kwargs):
-#         pk = kwargs.get("pk", None)
-#         if not pk:
-#             return Response({"error": "Method PUT not allowed"})
-#
-#         try:
-#             instance = Games.objects.get(pk=pk)
-#         except:
-#             return Response({"error": "Object does not exists"})
-#
-#         serializer = GameSerializer(data=request.data, instance=instance)
-#         serializer.is_valid(raise_exception=True)
-#         serializer.save()
-#         return Response({"post": serializer.data})
-#
-#     def delete(self, request, *args, **kwargs):
-#         pk = kwargs.get("pk", None)
-#         if not pk:
-#             return Response({"error": "Method DELETE not allowed"})
-#
-#         # здесь код для удаления записи с переданным pk
-#
-#         return Response({"post": "delete post " + str(pk)})
+class GamesAPIUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Games.objects.all()
+    serializer_class = GameSerializer
+    permission_classes = (IsOwnerOrReadOnly, )
+
+
+class GamesAPIDestroy(generics.RetrieveDestroyAPIView):
+    queryset = Games.objects.all()
+    serializer_class = GameSerializer
+    permission_classes = (IsAdminOrReadOnly, )
