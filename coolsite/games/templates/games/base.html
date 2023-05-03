@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{title}}</title>
+    <title>{{ title }}</title>
     <link type="text/css" href="{% static 'games/css/styles.css' %}" rel="stylesheet"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="shortcut icon" href="{% static 'games/images/main.ico' %}" type="image/x-icon"/>
@@ -15,46 +15,49 @@
     <tr>
         <td valign=top>
             {% block mainmenu %}
-            <div class="header">
-                <ul id="mainmenu" class="mainmenu">
-                    <li class="logo"><a href="{% url 'home' %}">
-                        <div class="logo"></div>
-                    </a></li>
-                    {% for m in menu %}
-                    <li class="last"><a href="{% url m.url_name %}">{{m.title}}</a></li>
-                    {% endfor %}
-                    {% if request.user.is_authenticated %}
-                    <li class="last">{{user.username}} | <a href="{% url 'logout' %}">Выйти</a></li>
-                    {% else %}
-                    <li class="last"><a href="{% url 'register' %}">Регистрация</a> | <a
-                            href="{% url 'login' %}">Войти</a></li>
-                    {% endif %}
-                </ul>
-                <div class="clear"></div>
-            </div>
+                <div class="header">
+                    <ul id="mainmenu" class="mainmenu">
+                        <li class="logo"><a href="{% url 'home' %}">
+                            <div class="logo"></div>
+                        </a></li>
+                        {% for m in menu %}
+                            <li class="last"><a href="{% url m.url_name %}">{{ m.title }}</a></li>
+                        {% endfor %}
+                        {% if request.user.is_authenticated %}
+                            <li class="last">{{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></li>
+                        {% else %}
+                            <li class="last"><a href="{% url 'register' %}">Регистрация</a> | <a
+                                    href="{% url 'login' %}">Войти</a></li>
+                        {% endif %}
+                    </ul>
+                    <div class="clear"></div>
+                </div>
             {% endblock mainmenu %}
 
 
             <table class="table-content" border=0 cellpadding="0" cellspacing="0">
                 <tr>
                     <!-- Sidebar слева -->
+                    {% load cache %}
                     <td valign="top" class="left-chapters">
                         <ul id="leftchapters">
-                            {% if cat_selected == 0 %}
-                            <li class="selected">Все категории</li>
-                            {% else %}
-                            <li><a href="{% url 'home' %}">Все категории</a></li>
-                            {% endif %}
+                            {% cache 60 sidebar %}
+                                {% if cat_selected == 0 %}
+                                    <li class="selected">Все категории</li>
+                                {% else %}
+                                    <li><a href="{% url 'home' %}">Все категории</a></li>
+                                {% endif %}
 
-                            {% for c in cats %}
-                            {% if c.games__count > 0 %}
-                            {% if c.pk == cat_selected %}
-                            <li class="selected">{{c.name}}</li>
-                            {% else %}
-                            <li><a href="{{ c.get_absolute_url }}">{{c.name}}</a></li>
-                            {% endif %}
-                            {% endif %}
-                            {% endfor %}
+                                {% for c in cats %}
+                                    {% if c.games__count > 0 %}
+                                        {% if c.pk == cat_selected %}
+                                            <li class="selected">{{ c.name }}</li>
+                                        {% else %}
+                                            <li><a href="{{ c.get_absolute_url }}">{{ c.name }}</a></li>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endcache %}
 
                             <li class="share">
                                 <p>Наш канал</p>
@@ -75,37 +78,37 @@
                             {% block content %}
                             {% endblock %}
                             {% if is_paginated %}
-                            <ul class="pagination justify-content-center">
-                                {% if page_obj.has_previous %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                                </li>
-                                {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">Previous</span>
-                                </li>
-                                {% endif %}
-                                {% for num in page_obj.paginator.page_range %}
-                                {% if page_obj.number == num %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ num }}</span>
-                                </li>
-                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                                </li>
-                                {% endif %}
-                                {% endfor %}
-                                {% if page_obj.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                                </li>
-                                {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">Next</span>
-                                </li>
-                                {% endif %}
-                            </ul>
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Previous</span>
+                                        </li>
+                                    {% endif %}
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">Next</span>
+                                        </li>
+                                    {% endif %}
+                                </ul>
                             {% endif %}
                         </div>
                     </td>
