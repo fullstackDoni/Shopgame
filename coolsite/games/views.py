@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseNotFound, Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import *
 
@@ -44,13 +44,21 @@ def pageNotFound(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
 
-def show_games(request, games_id):
-    return HttpResponse(f"Отображение статьи с id = {games_id}")
+def show_games(request, games_slug):
+    games = get_object_or_404(Games, slug=games_slug)
+
+    context = {
+        'games': games,
+        'menu': menu,
+        'title': games.title,
+        'cat_selected': games.cat_id,
+    }
+
+    return render(request, 'games/games.html', context=context)
 
 
 def show_category(request, cat_id):
     games = Games.objects.filter(cat_id=cat_id)
-
 
     if len(games) == 0:
         raise Http404()
