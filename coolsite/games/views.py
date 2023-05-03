@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, FormView
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -213,7 +214,7 @@ class GamesAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Games.objects.all()
     serializer_class = GameSerializer
     permission_classes = (IsOwnerOrReadOnly, )
-
+    # authentication_classes = (TokenAuthentication,)
 
 class GamesAPIDestroy(generics.RetrieveDestroyAPIView):
     queryset = Games.objects.all()

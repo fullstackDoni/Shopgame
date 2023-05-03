@@ -1,7 +1,7 @@
 from coolsite import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 
 from games.views import *
 from django.urls import path, include
@@ -15,8 +15,8 @@ urlpatterns = [
     path('api/v1/games/', GamesAPIList.as_view()),
     path('api/v1/games/<int:pk>/', GamesAPIUpdate.as_view()),
     path('api/v1/gamesdelete/<int:pk>/', GamesAPIDestroy.as_view()),
-    # path('api/v1/gameslist', GamesViewSet.as_view({'get': 'list'})),
-    # path('api/v1/gameslist/<int:pk>/', GamesViewSet.as_view({'put': 'update'})),
+    path('api/v1/auth/', include('djoser.urls')),  # new
+    re_path(r'^auth/', include('djoser.urls.authtoken')),  # new
 ]
 if settings.DEBUG:
     import debug_toolbar
