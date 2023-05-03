@@ -200,6 +200,11 @@ def logout_user(request):
     return redirect('login')
 
 
+class GamesAPIList(generics.ListCreateAPIView):
+    queryset = Games.objects.all()
+    serializer_class = GameSerializer
+
+
 class GamesAPIView(APIView):
     def get(self, request):
         w = Games.objects.all()

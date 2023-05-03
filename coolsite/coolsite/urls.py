@@ -10,8 +10,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('captcha', include('captcha.urls')),
     path('', include('games.urls')),
-    path('api/v1/gameslist', GamesAPIView.as_view()),
-    path('api/v1/gameslist/<int:pk>/', GamesAPIView.as_view())
+    path('api/v1/gameslist', GamesAPIList.as_view()),
+    path('api/v1/gameslist/<int:pk>/', GamesAPIList.as_view())
 ]
 if settings.DEBUG:
 
