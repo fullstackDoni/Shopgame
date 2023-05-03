@@ -16,3 +16,6 @@ class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Games
         fields = "__all__"
+
+
+#Serializer by DONI
